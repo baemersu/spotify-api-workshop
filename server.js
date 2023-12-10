@@ -1,3 +1,4 @@
+// server.js
 import express from "express";
 import fetch from "node-fetch";
 
@@ -9,8 +10,10 @@ app.set("view engine", "pug");
 app.use(express.static("public"));
 
 const redirect_uri = "http://localhost:3000/callback";
-const client_id = "";
-const client_secret = "";
+
+import config from "./config.js";
+const client_id = config.client_id;
+const client_secret = config.client_secret;
 
 global.access_token;
 
@@ -29,11 +32,12 @@ app.get("/authorize", (req, res) => {
   res.redirect(
     "https://accounts.spotify.com/authorize?" + auth_query_parameters.toString()
   );
+  console.log("liberado");
 });
 
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
-
+  console.log(code);
   var body = new URLSearchParams({
     code: code,
     redirect_uri: redirect_uri,
