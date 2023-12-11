@@ -26,3 +26,5 @@ block content
             p #{track.track.album.name}
             audio.controls
               source(src=track.track.preview_url, type='audio/mp3')
+            form(method='POST', action=`/playlist/${playlistDetails.id}/remove-track/${track.track.id}`)
+              button(type='submit') Remove

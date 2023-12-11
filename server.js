@@ -25,7 +25,7 @@ app.get("/authorize", (req, res) => {
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: client_id,
-    scope: "user-library-read",
+    scope: "playlist-modify-public playlist-modify-private user-library-read",
     redirect_uri: redirect_uri,
   });
 
@@ -131,3 +131,43 @@ let listener = app.listen(3000, function () {
   );
 });
 // Inicia o servidor na porta 3000 e exibe uma mensagem indicando que o aplicativo está ouvindo nesta porta.
+
+
+
+app.post("/playlist/:playlistId/remove-track/:trackId", async (req, res) => {
+  try {
+    const { playlistId, trackId } = req.params;
+
+    // Detalhes da faixa a ser removida da playlist
+    const trackToRemove = {
+      tracks: [
+        {
+          uri: `spotify:track:${trackId}`
+        }
+      ]
+    };
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + global.access_token // Certifique-se de incluir o token de acesso aqui
+      },
+      body: JSON.stringify(trackToRemove)
+    });
+
+    const responseData = await response.json();
+    console.log(responseData); // Exibe a resposta da API no console para ajudar a identificar o problema
+
+    if (response.ok) {
+      // Redirecionamento para a página anterior do usuário
+      res.redirect(`/playlist/${playlistId}`);
+    } else {
+      res.status(500).send("Falha ao remover a faixa da playlist");
+    }
+  } catch (error) {
+    console.error("Erro ao remover faixa da playlist:", error);
+    res.status(500).send("Erro ao remover faixa da playlist");
+  }
+});
+
