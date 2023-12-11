@@ -1,0 +1,14 @@
+extends layout.pug
+
+block content
+    .playlists-container
+        h1 Playlists
+        ul.playlist-list
+            each playlist in playlists
+                li.playlist-item.track-item
+                    .track-info
+                        if playlist.images && playlist.images.length > 0
+                            img(src=playlist.images[0].url, alt='Playlist Image')
+                        h3 #{playlist.name}
+                        p
+                            a(href=`/playlist/${playlist.id}`) Ver Músicas (#{playlist.tracks.total || 0})

@@ -1,24 +1,24 @@
 // server.js
-import express from "express";
-import fetch from "node-fetch";
+import express from "express"; // Importa o framework Express para criação do servidor web.
+import fetch from "node-fetch"; // Importa a biblioteca 'node-fetch' para realizar solicitações HTTP.
 
-const app = express();
+const app = express(); // Inicializa a aplicação Express.
 
-app.set("views", "./views");
-app.set("view engine", "pug");
+app.set("views", "./views"); // Configura o diretório das views para o caminho "./views".
+app.set("view engine", "pug"); // Configura o mecanismo de visualização como 'pug'.
 
-app.use(express.static("public"));
+app.use(express.static("public")); // Configura o uso de arquivos estáticos no diretório "public".
 
-const redirect_uri = "http://localhost:3000/callback";
+const redirect_uri = "http://localhost:3000/callback"; // Define o URI de redirecionamento após a autorização.
 
-import config from "./config.js";
-const client_id = config.client_id;
-const client_secret = config.client_secret;
+import config from "./config.js"; // Importa as configurações (chaves de API) do arquivo 'config.js'.
+const client_id = config.client_id; // Atribui o client_id da configuração.
+const client_secret = config.client_secret; // Atribui o client_secret da configuração.
 
-global.access_token;
+global.access_token; // Variável global para armazenar o token de acesso.
 
 app.get("/", function (req, res) {
-  res.render("index");
+  res.render("index"); // Rota principal que renderiza a view 'index'.
 });
 
 app.get("/authorize", (req, res) => {
@@ -32,8 +32,9 @@ app.get("/authorize", (req, res) => {
   res.redirect(
     "https://accounts.spotify.com/authorize?" + auth_query_parameters.toString()
   );
-  console.log("liberado");
+  console.log("Cliente Autorizado");
 });
+// Rota '/authorize': Redireciona o usuário para a página de autorização do Spotify com os parâmetros apropriados.
 
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
@@ -60,6 +61,7 @@ app.get("/callback", async (req, res) => {
 
   res.redirect("/dashboard");
 });
+// Rota '/callback': Recebe o código de autorização, troca por um token de acesso e redireciona para a rota '/dashboard'.
 
 async function getData(endpoint) {
   const response = await fetch("https://api.spotify.com/v1" + endpoint, {
@@ -72,13 +74,15 @@ async function getData(endpoint) {
   const data = await response.json();
   return data;
 }
+// Função auxiliar 'getData': Faz solicitações à API do Spotify adicionando automaticamente o token de acesso aos cabeçalhos.
 
 app.get("/dashboard", async (req, res) => {
   const userInfo = await getData("/me");
-  const tracks = await getData("/me/tracks?limit=10");
+  const tracks = await getData("/me/tracks?limit=30");
 
   res.render("dashboard", { user: userInfo, tracks: tracks.items });
 });
+// Rota '/dashboard': Recupera informações do perfil do usuário e as últimas 10 faixas adicionadas à biblioteca, e renderiza a view 'dashboard'.
 
 app.get("/recommendations", async (req, res) => {
   const artist_id = req.query.artist;
@@ -93,9 +97,37 @@ app.get("/recommendations", async (req, res) => {
   const data = await getData("/recommendations?" + params);
   res.render("recommendation", { tracks: data.tracks });
 });
+// Rota '/recommendations': Gera recomendações de faixas com base em artistas e faixas fornecidos como parâmetros de consulta.
+
+app.get("/playlists", async (req, res) => {
+  const playlists = await getData("/me/playlists");
+  const userInfo = await getData("/me"); 
+
+  res.render("playlists", { playlists: playlists.items, user: userInfo });
+});
+
+
+
+app.get('/playlist/:playlistId', async (req, res) => {
+  const playlistId = req.params.playlistId;
+
+  try {
+    // Faça a chamada à API do Spotify para obter os detalhes da playlist
+    const playlistDetails = await getData(`/playlists/${playlistId}`);
+    
+    // Renderize a página com os detalhes da playlist
+    res.render('tracks', { playlistDetails });
+  } catch (error) {
+    // Lide com erros, por exemplo, redirecionando para uma página de erro
+    res.render('error', { error });
+  }
+});
+
+
 
 let listener = app.listen(3000, function () {
   console.log(
     "Your app is listening on http://localhost:" + listener.address().port
   );
 });
+// Inicia o servidor na porta 3000 e exibe uma mensagem indicando que o aplicativo está ouvindo nesta porta.

@@ -1,10 +1,20 @@
-doctype=html
+//- layout.pug
+
 html
   head
     title My Spotify API app ✨
+    link(rel='stylesheet', href='/dashboard.css')
     link(rel='stylesheet' href='https://sp-bootstrap.global.ssl.fastly.net/8.0.0/sp-bootstrap.min.css')
     link(rel='stylesheet' href='/style.css')
   
   body
-    block content
+    if user
+      nav.navbar.navbar-expand-lg.navbar-light.bg-light
+        .collapse.navbar-collapse#navbarNav
+          ul.navbar-nav.ml-auto
+            li.nav-item
+              a.nav-link(href='/dashboard') Dashboard
+            li.nav-item
+              a.nav-link(href='/playlists') Playlists
 
+    block content

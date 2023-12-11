@@ -1,0 +1,28 @@
+//- tracks.pug
+
+extends layout.pug
+
+block content
+  nav.navbar.navbar-expand-lg.navbar-light.bg-light
+    .collapse.navbar-collapse#navbarNav
+      ul.navbar-nav.ml-auto
+        li.nav-item
+          a.nav-link(href='/dashboard') Dashboard
+        li.nav-item
+          a.nav-link(href='/playlists') Playlists
+  
+  .playlist-details-container
+    h1 #{playlistDetails.name}
+    p Description: #{playlistDetails.description || 'No description available'}
+    p Tracks: #{playlistDetails.tracks.total}
+
+    ul.tracks-list
+      each track in playlistDetails.tracks.items
+        li.track-item
+          img(src=track.track.album.images[0].url, alt='Album Cover')
+          .track-details
+            h3 #{track.track.name}
+            //- p Artist: #{track.track.artists[0].name}
+            p #{track.track.album.name}
+            audio.controls
+              source(src=track.track.preview_url, type='audio/mp3')
